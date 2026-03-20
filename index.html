@@ -371,10 +371,6 @@
         let adminPwd = localStorage.getItem("adminPwd") || DEFAULT_PWD;
         let contactPhone = localStorage.getItem("contactPhone") || DEFAULT_PHONE;
         
-        // 腾讯文档配置（替换成你的实际信息）
-        const TENCENT_SHEET_KEY = "你的腾讯文档表格key"; // 表格key，见下方教程
-        const TENCENT_SHEET_TOKEN = "你的腾讯文档token"; // 无需填写，零基础简化版
-        
         // 页面加载时更新联系电话显示
         window.onload = function() {
             document.getElementById("phoneValue").textContent = contactPhone;
@@ -430,39 +426,15 @@
             return reg.test(id);
         }
 
-        // 同步数据到腾讯文档（无感知，不跳转）
-        function syncToTencentSheet(data, type) {
-            // 零基础简化版：先把数据保存到本地，管理员手动同步到腾讯文档
-            // 优点：无需开发，稳定；缺点：管理员每天手动复制一次数据（适合校内小体量使用）
-            
-            // 1. 保存到本地存储
+        // 同步数据到本地存储（无感知）
+        function syncToLocalStorage(data, type) {
+            // 保存到本地存储
             let historyData = JSON.parse(localStorage.getItem("umbrellaData") || "[]");
             data.type = type; // borrow/return
             data.time = new Date().toLocaleString(); // 提交时间
             historyData.push(data);
             localStorage.setItem("umbrellaData", JSON.stringify(historyData));
-
-            // 2. 管理员可在后台导出本地数据（下方有教程）
-            console.log("数据已保存到本地，管理员可导出同步到腾讯文档：", data);
-            
-            // 进阶版：对接腾讯文档API自动同步（需少量配置，可选）
-            /*
-            fetch(`https://docs.qq.com/openapi/v1/sheet/${TENCENT_SHEET_KEY}/values`, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${TENCENT_SHEET_TOKEN}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    range: type === "borrow" ? "借伞表!A1" : "还伞表!A1",
-                    values: [[data.name, data.phone, data.location, data.time]]
-                })
-            }).then(res => res.json()).then(res => {
-                console.log("同步到腾讯文档成功：", res);
-            }).catch(err => {
-                console.log("同步失败，数据已保存到本地：", err);
-            });
-            */
+            console.log("数据已保存到本地：", data);
         }
 
         // 借伞提交（纯前端，无跳转）
@@ -505,8 +477,8 @@
                 userType: userType
             };
 
-            // 同步数据到腾讯文档（无感知）
-            syncToTencentSheet(borrowData, "borrow");
+            // 同步数据到本地存储
+            syncToLocalStorage(borrowData, "borrow");
 
             // 隐藏加载，显示成功弹窗
             setTimeout(() => {
@@ -541,8 +513,8 @@
                 location: location
             };
 
-            // 同步数据到腾讯文档（无感知）
-            syncToTencentSheet(returnData, "return");
+            // 同步数据到本地存储
+            syncToLocalStorage(returnData, "return");
 
             // 匹配借还伞记录
             let historyData = JSON.parse(localStorage.getItem("umbrellaData") || "[]");
@@ -657,16 +629,16 @@
             document.getElementById("operateSuccessModal").style.display = "flex";
         }
 
-        // 打开数据表格（腾讯文档）+ 导出本地数据
+        // 打开数据表格（腾讯文档）+ 导出本地数据（修复中文乱码版）
         function openDataTable() {
-            // 1. 导出本地所有借还伞数据（管理员可复制到腾讯文档）
+            // 1. 导出本地所有借还伞数据（修复UTF-8 BOM，解决Excel乱码）
             let historyData = JSON.parse(localStorage.getItem("umbrellaData") || "[]");
-            let dataStr = "类型,姓名,电话,班级,学号,位置,提交时间\n";
+            let dataStr = "\ufeff类型,姓名,电话,班级,学号,位置,提交时间\n"; // UTF-8 BOM标记，解决Excel乱码
             historyData.forEach(item => {
                 if (item.type === "borrow") {
-                    dataStr += `借伞,${item.name},${item.phone},${item.class},${item.stuId},${item.location},${item.time}\n`;
+                    dataStr += `借伞,${item.name},${item.phone},${item.class||""},${item.stuId||""},${item.location},${item.time}\n`;
                 } else {
-                    dataStr += `还伞,${item.name},${item.phone},-,-,${item.location},${item.time}\n`;
+                    dataStr += `还伞,${item.name},${item.phone},,,${item.location},${item.time}\n`;
                 }
             });
             // 创建下载链接
@@ -677,7 +649,7 @@
             link.download = `机电学院借还伞数据_${new Date().toLocaleDateString()}.csv`;
             link.click();
 
-            // 2. 打开腾讯文档表格（管理员手动粘贴数据）
+            // 2. 打开你的腾讯文档汇总表
             window.open("https://docs.qq.com/sheet/DSmFTWUdySnZoUWxx?tab=000001", "_blank");
         }
 
