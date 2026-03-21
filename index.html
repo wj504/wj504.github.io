@@ -15,11 +15,10 @@
             background-color: #f5f5f5;
             padding: 20px;
             padding-top: 70px;
-            padding-bottom: 80px; /* 为页脚预留空间 */
+            padding-bottom: 80px;
             min-height: 100vh;
             position: relative;
         }
-        /* 页眉样式 */
         header {
             background-color: #206694;
             color: white;
@@ -33,8 +32,563 @@
             font-size: 18px;
             font-weight: bold;
         }
-        /* 页脚样式 */
         footer {
+            background-color: #206694;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 999;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .tab {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .tab button {
+            flex: 1;
+            padding: 12px 0;
+            border: none;
+            background-color: #e9e9e9;
+            color: #333;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .tab button.active {
+            background-color: #206694;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 15px;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #206694;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 12px 0;
+            background-color: #206694;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .admin-entry {
+            text-align: right;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .admin-entry a {
+            color: #206694;
+            text-decoration: none;
+        }
+        .contact-phone {
+            text-align: center;
+            margin: 15px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .loading {
+            text-align: center;
+            color: #206694;
+            margin: 10px 0;
+            display: none;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+        }
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #206694;
+            text-align: center;
+        }
+        .modal-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-btn-group button {
+            flex: 1;
+            padding: 8px 0;
+            border: none;
+            border-radius: 4px;
+            background-color: #206694;
+            color: white;
+            cursor: pointer;
+        }
+        .admin-panel {
+            display: none;
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+        .admin-panel h3 {
+            color: #206694;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .admin-panel .form-group {
+            margin-bottom: 15px;
+        }
+        .admin-panel .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .admin-panel .btn-group button {
+            flex: 1;
+            padding: 8px 0;
+            border: none;
+            border-radius: 4px;
+            background-color: #206694;
+            color: white;
+            cursor: pointer;
+        }
+        .success-tip {
+            text-align: center;
+            color: green;
+            margin-top: 10px;
+            display: none;
+        }
+        /* 隐藏的iframe提交容器 */
+        #submitIframe {
+            width: 0;
+            height: 0;
+            border: 0;
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+    </style>
+</head>
+<body>
+    <header>机电工程学院公益借伞</header>
+    
+    <!-- 管理员面板 -->
+    <div id="adminPanel" class="admin-panel">
+        <h3>管理员后台</h3>
+        <div class="form-group">
+            <label for="oldPwd">原管理员密码</label>
+            <input type="password" id="oldPwd" placeholder="请输入原密码">
+            <div class="error" id="oldPwdError">原密码错误</div>
+        </div>
+        <div class="form-group">
+            <label for="newPwd">新管理员密码</label>
+            <input type="password" id="newPwd" placeholder="请输入新密码（至少6位）">
+        </div>
+        <div class="form-group">
+            <label for="confirmPwd">确认新密码</label>
+            <input type="password" id="confirmPwd" placeholder="再次输入新密码">
+            <div class="error" id="confirmPwdError">两次密码不一致</div>
+        </div>
+        <div class="form-group">
+            <label for="newContactPhone">管理员联系电话</label>
+            <input type="tel" id="newContactPhone" placeholder="请输入11位手机号码">
+            <div class="error" id="phoneFormatError">请输入正确的11位手机号</div>
+        </div>
+        <div class="btn-group">
+            <button onclick="updateAdminPwd()">修改管理员密码</button>
+            <button onclick="updateAdminPhone()">修改联系电话</button>
+        </div>
+        <div class="success-tip" id="adminSuccessTip">操作成功！</div>
+        
+        <!-- 管理员查看数据的详细指引 -->
+        <div class="form-group" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+            <p style="text-align: center; color: #333; font-size: 14px; margin-bottom: 8px;">查看提交数据步骤：</p>
+            <a href="https://www.wjx.cn/mywork.htm" target="_blank" style="display: block; text-align: center; color: #206694; font-weight: bold; margin-bottom: 5px;">
+                1. 点击登录问卷星后台
+            </a>
+            <p style="text-align: center; font-size: 12px; color: #999; line-height: 1.5;">
+                2. 登录后选择「我的问卷」→ 找到「机电工程学院公益借伞」<br>
+                3. 点击「数据&分析」→ 即可看到所有提交记录（手机/电脑都能查）
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="admin-entry">
+            <a href="#" id="adminLoginBtn">管理员登录</a>
+        </div>
+
+        <div class="contact-phone">
+            管理员联系电话：<span id="contactPhoneDisplay">13800138000</span>
+        </div>
+
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'operateForm')">借还伞登记</button>
+        </div>
+
+        <div id="operateForm" class="form-content">
+            <!-- 主表单 -->
+            <form id="mainForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="userIdentity">您的身份 *</label>
+                    <select id="userIdentity" required onchange="toggleStudentFields()">
+                        <option value="">请选择身份</option>
+                        <option value="我是学生。">我是学生。</option>
+                        <option value="我是老师。">我是老师。</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="operateType">操作类型 *</label>
+                    <select id="operateType" required>
+                        <option value="">请选择操作类型</option>
+                        <option value="借伞">借伞</option>
+                        <option value="还伞">还伞</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userName">姓名 *</label>
+                    <input type="text" id="userName" required placeholder="请输入您的姓名">
+                </div>
+                <div class="form-group">
+                    <label for="userPhone">联系电话 *</label>
+                    <input type="tel" id="userPhone" required placeholder="请输入11位手机号码">
+                    <div class="error" id="userPhoneError">请输入正确的11位手机号码</div>
+                </div>
+                <div class="form-group student-only hidden">
+                    <label for="userClass">班级 *</label>
+                    <input type="text" id="userClass" placeholder="示例：机电2406班">
+                    <div class="error" id="classError">请填写班级</div>
+                </div>
+                <div class="form-group student-only hidden">
+                    <label for="userStuId">学号 *</label>
+                    <input type="text" id="userStuId" placeholder="请输入学号">
+                    <div class="error" id="stuIdError">请填写学号</div>
+                </div>
+                <div class="form-group">
+                    <label for="operateLocation">借/还伞地点 *</label>
+                    <input type="text" id="operateLocation" required placeholder="请输入借/还伞地点">
+                </div>
+                <div class="loading" id="submitLoading">提交中，请稍候...</div>
+                <button type="button" class="submit-btn" onclick="submitForm()">提交信息</button>
+                <div class="success-tip" id="submitSuccessTip">提交成功！感谢您的配合</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 管理员登录模态框 -->
+    <div id="adminLoginModal" class="modal">
+        <div class="modal-content">
+            <h3>管理员登录</h3>
+            <div class="form-group">
+                <label for="adminPwd">管理员密码</label>
+                <input type="password" id="adminPwd" placeholder="默认密码：123456">
+                <div class="error" id="adminPwdError">密码错误</div>
+            </div>
+            <div class="modal-btn-group">
+                <button onclick="doAdminLogin()">登录</button>
+                <button onclick="closeAdminModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 静默提交用的iframe（核心） -->
+    <iframe id="submitIframe" name="submitIframe"></iframe>
+    <!-- 自动提交的隐藏表单 -->
+    <form id="hiddenWjxForm" action="https://v.wjx.cn/vm/ObheNkN.aspx" method="post" target="submitIframe" class="hidden">
+        <input type="hidden" name="q1" id="wjx_q1">
+        <input type="hidden" name="q2" id="wjx_q2">
+        <input type="hidden" name="q3" id="wjx_q3">
+        <input type="hidden" name="q4" id="wjx_q4">
+        <input type="hidden" name="q5" id="wjx_q5">
+        <input type="hidden" name="q6" id="wjx_q6">
+        <input type="hidden" name="q7" id="wjx_q7">
+        <input type="hidden" name="submit" value="提交">
+    </form>
+
+    <footer>机电工程学院青工部</footer>
+
+    <script>
+        // 核心配置
+        const DEFAULT_ADMIN_PWD = "123456";
+        const DEFAULT_CONTACT_PHONE = "13800138000";
+
+        // 初始化存储
+        let adminPwd = localStorage.getItem("adminPwd") || DEFAULT_ADMIN_PWD;
+        let contactPhone = localStorage.getItem("contactPhone") || DEFAULT_CONTACT_PHONE;
+
+        // 页面加载初始化
+        window.onload = function() {
+            document.getElementById("contactPhoneDisplay").textContent = contactPhone;
+            document.getElementById("newContactPhone").value = contactPhone;
+            // 监听iframe加载完成（确认提交成功）
+            document.getElementById("submitIframe").onload = function() {
+                document.getElementById("submitLoading").style.display = "none";
+                document.getElementById("submitSuccessTip").style.display = "block";
+                // 3秒后重置表单
+                setTimeout(() => {
+                    resetForm();
+                }, 3000);
+            };
+        };
+
+        // 切换学生字段显示
+        function toggleStudentFields() {
+            const identity = document.getElementById("userIdentity").value;
+            const studentFields = document.getElementsByClassName("student-only");
+            
+            for (let field of studentFields) {
+                if (identity === "我是学生。") {
+                    field.classList.remove("hidden");
+                    field.querySelector("input").setAttribute("required", "required");
+                } else {
+                    field.classList.add("hidden");
+                    field.querySelector("input").removeAttribute("required");
+                    field.querySelector("input").value = "";
+                }
+            }
+        }
+
+        // 选项卡切换
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName("form-content");
+            const tabLinks = document.getElementsByClassName("tablinks");
+            
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].style.display = "none";
+                tabLinks[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.classList.add("active");
+        }
+
+        // 手机号验证
+        function validatePhone(phone) {
+            const reg = /^1[3-9]\d{9}$/;
+            return reg.test(phone);
+        }
+
+        // 表单提交（核心：iframe静默提交，100%入库）
+        function submitForm() {
+            // 重置所有提示
+            resetAllErrors();
+            document.getElementById("submitLoading").style.display = "block";
+            document.getElementById("submitSuccessTip").style.display = "none";
+
+            // 获取表单数据
+            const identity = document.getElementById("userIdentity").value;
+            const operateType = document.getElementById("operateType").value;
+            const name = document.getElementById("userName").value;
+            const phone = document.getElementById("userPhone").value;
+            const className = document.getElementById("userClass").value;
+            const stuId = document.getElementById("userStuId").value;
+            const location = document.getElementById("operateLocation").value;
+
+            // 验证逻辑（严谨版）
+            let isValid = true;
+            if (!identity) {
+                alert("请选择您的身份");
+                isValid = false;
+            } else if (!operateType) {
+                alert("请选择操作类型");
+                isValid = false;
+            } else if (!name) {
+                alert("请填写姓名");
+                isValid = false;
+            } else if (!validatePhone(phone)) {
+                document.getElementById("userPhoneError").style.display = "block";
+                isValid = false;
+            } else if (identity === "我是学生。" && !className) {
+                document.getElementById("classError").style.display = "block";
+                isValid = false;
+            } else if (identity === "我是学生。" && !stuId) {
+                document.getElementById("stuIdError").style.display = "block";
+                isValid = false;
+            } else if (!location) {
+                alert("请填写借/还伞地点");
+                isValid = false;
+            }
+
+            // 验证失败则重置加载状态
+            if (!isValid) {
+                document.getElementById("submitLoading").style.display = "none";
+                return;
+            }
+
+            // 给隐藏表单赋值（匹配问卷星题号）
+            document.getElementById("wjx_q1").value = identity;
+            document.getElementById("wjx_q2").value = operateType;
+            document.getElementById("wjx_q3").value = name;
+            document.getElementById("wjx_q4").value = phone;
+            document.getElementById("wjx_q5").value = className || "";
+            document.getElementById("wjx_q6").value = stuId || "";
+            document.getElementById("wjx_q7").value = location;
+
+            // 提交隐藏表单（iframe静默提交，无跳转）
+            document.getElementById("hiddenWjxForm").submit();
+        }
+
+        // 重置表单
+        function resetForm() {
+            document.getElementById("mainForm").reset();
+            document.getElementById("submitSuccessTip").style.display = "none";
+            // 隐藏学生字段
+            const studentFields = document.getElementsByClassName("student-only");
+            for (let field of studentFields) {
+                field.classList.add("hidden");
+            }
+        }
+
+        // 管理员登录
+        document.getElementById("adminLoginBtn").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("adminLoginModal").style.display = "flex";
+        });
+
+        function doAdminLogin() {
+            const pwd = document.getElementById("adminPwd").value;
+            if (pwd === adminPwd) {
+                closeAdminModal();
+                document.getElementById("adminPanel").style.display = "block";
+            } else {
+                document.getElementById("adminPwdError").style.display = "block";
+            }
+        }
+
+        function closeAdminModal() {
+            document.getElementById("adminLoginModal").style.display = "none";
+            document.getElementById("adminPwdError").style.display = "none";
+            document.getElementById("adminPwd").value = "";
+        }
+
+        // 修改管理员密码
+        function updateAdminPwd() {
+            resetAdminErrors();
+            const oldPwd = document.getElementById("oldPwd").value;
+            const newPwd = document.getElementById("newPwd").value;
+            const confirmPwd = document.getElementById("confirmPwd").value;
+
+            if (oldPwd !== adminPwd) {
+                document.getElementById("oldPwdError").style.display = "block";
+                return;
+            }
+            if (!newPwd || newPwd.length < 6) {
+                alert("新密码不能为空且长度不少于6位");
+                return;
+            }
+            if (newPwd !== confirmPwd) {
+                document.getElementById("confirmPwdError").style.display = "block";
+                return;
+            }
+
+            localStorage.setItem("adminPwd", newPwd);
+            adminPwd = newPwd;
+            document.getElementById("adminSuccessTip").style.display = "block";
+            
+            // 重置表单
+            document.getElementById("oldPwd").value = "";
+            document.getElementById("newPwd").value = "";
+            document.getElementById("confirmPwd").value = "";
+            
+            setTimeout(() => {
+                document.getElementById("adminSuccessTip").style.display = "none";
+            }, 3000);
+        }
+
+        // 修改联系电话
+        function updateAdminPhone() {
+            resetAdminErrors();
+            const newPhone = document.getElementById("newContactPhone").value;
+            
+            if (!validatePhone(newPhone)) {
+                document.getElementById("phoneFormatError").style.display = "block";
+                return;
+            }
+
+            localStorage.setItem("contactPhone", newPhone);
+            contactPhone = newPhone;
+            document.getElementById("contactPhoneDisplay").textContent = newPhone;
+            
+            document.getElementById("adminSuccessTip").style.display = "block";
+            setTimeout(() => {
+                document.getElementById("adminSuccessTip").style.display = "none";
+            }, 3000);
+        }
+
+        // 重置错误提示
+        function resetAllErrors() {
+            const errors = document.getElementsByClassName("error");
+            for (let err of errors) {
+                err.style.display = "none";
+            }
+        }
+
+        function resetAdminErrors() {
+            document.getElementById("oldPwdError").style.display = "none";
+            document.getElementById("confirmPwdError").style.display = "none";
+            document.getElementById("phoneFormatError").style.display = "none";
+            document.getElementById("adminSuccessTip").style.display = "none";
+        }
+
+        // 点击空白处关闭模态框
+        window.onclick = function(event) {
+            if (event.target.classList.contains("modal")) {
+                event.target.style.display = "none";
+                resetAllErrors();
+            }
+        };
+    </script>
+</body>
+</html>        footer {
             background-color: #206694;
             color: white;
             text-align: center;
